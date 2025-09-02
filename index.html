@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="RayGaussX">
+  <meta name="keywords" content="RayGaussX, RayGauss, NeRF">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RayGaussX</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/visual.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/logo_mines_paris.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/script.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          
+          <h1 class="title is-2 publication-title" style="margin-top: 0; margin-bottom: 0">RayGaussX: Accelerating Gaussian-Based Ray Marching for Real-Time and
+High-Quality Novel View Synthesis</h1>
+          <br>
+          <h2 class="title is-3" style="margin-top: 0; margin-bottom: 0">ICCV 2025</h2>
+          <br>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://www.linkedin.com/in/hugo-blanc-a2b46016a/?originalSubdomain=fr">Blanc Hugo<a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=zR1n_4QAAAAJ&hl=fr">Deschaud Jean Emmanuel<a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.fr/citations?user=3eO15d0AAAAJ&hl=fr">Paljic Alexis<a><sup>1</sup>,</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup><a href="https://www.minesparis.psl.eu/en/home/">Mines Paris - PSL<a></span>
+          </div>
+          
+          <div class="column has-text-centered">
+            <div class="columns is-centered">
+              <div class="logo">
+                <img src="static/images/logo_mines.jpg">
+              </div>
+            </div>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://drive.google.com/file/d/1-look4HeGlXI_SnkEXY9_cgyMQ77JPDj/view?usp=sharing"
+                    class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2408.03356"
+                    class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+          
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/hugobl1/ray_gauss"
+                    class="external-link button is-normal is-rounded is-dark disabled">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+            </div>
+          </div>
+
+            <div class="video-border">
+              <div id="intr_video" class="video-wrapper">
+                
+                <div class="video-after">
+                  <video id="videoAfter" src="static/videos/rg_final.mp4" autoplay muted loop></video>
+                  <div class="video-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+                
+                <div class="video-before">
+                  <div class="video-before-inset">
+                    <video id="videoBefore" src="static/videos/gs_final.mp4" autoplay muted loop></video>
+                    <div class="video-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+  
+                <div class="video-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+
+              </div>
+            </div>
+
+
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- Test -->
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-chair">
+          <video poster="" id="chair_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/chair2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-drums">
+          <video poster="" id="drums_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/drums2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-ficus">
+          <video poster="" id="ficus_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/ficus2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-hotdog">
+          <video poster="" id="hotdog_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/hotdog2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-lego">
+          <video poster="" id="lego_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/lego2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-materials">
+          <video poster="" id="materials_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/materials2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-mic">
+          <video poster="" id="mic_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/mic2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-ship">
+          <video poster="" id="ship_vid" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/blender/ship2.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- <section class="section">
+  <video poster="" id="dex_nerf" autoplay controls muted loop playsinline height="100%">
+    <source src="static/videos/Dex-NeRF_RayGauss.mp4"
+            type="video/mp4">
+  </video>
+</section> -->
+
+
+<!-- <section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+        <div class="container">
+          <div class="video-border">
+            <div id="intr_video" class="video-wrapper">
+              <div class="video-after">
+                <video src="static/videos/ray_gauss_ship2.mp4" autoplay muted loop></video>
+                <div class="video-afterPosition afterLabel">
+                  RayGauss
+                </div>
+              </div>
+              
+              <div class="video-before">
+                <div class="video-before-inset">
+                  <video src="static/videos/gsplat_ship.mp4" autoplay muted loop></video>
+                  <div class="video-beforePosition beforeLabel">
+                    3D Gaussian Splatting
+                  </div>
+                </div>
+              </div>
+
+              <div class="video-handle">
+                <span class="handle-right-arrow"></span>
+                <span class="handle-left-arrow"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</section> -->
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-nine-tenths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Differentiable volumetric rendering-based methods made significant progress in novel view synthesis. 
+            On one hand, innovative methods have replaced the Neural Radiance Fields (NeRF) network with locally parameterized structures, enabling high-quality renderings in a reasonable time.
+            On the other hand, approaches have used differentiable splatting instead of NeRF’s ray casting to optimize radiance fields rapidly using Gaussian kernels, allowing for fine adaptation to the scene. 
+            However, differentiable ray casting of irregularly spaced kernels has been scarcely explored, while splatting, despite enabling fast rendering times, is susceptible to clearly visible artifacts. 
+          </p>
+          <p>  
+            Our work closes this gap by providing a physically consistent formulation of the emitted radiance c and density σ, decomposed with Gaussian functions associated with Spherical Gaussians/Harmonics for all-frequency colorimetric representation. 
+            We also introduce a method enabling differentiable ray casting of irregularly distributed Gaussians using an algorithm that integrates radiance fields slab by slab and leverages a BVH structure. 
+            This allows our approach to finely adapt to the scene while avoiding splatting artifacts. 
+            As a result, we achieve superior rendering quality compared to the state-of-the-art while maintaining reasonable training times and achieving inference speeds of 25 FPS on the Blender dataset. 
+            Associated code will be released publicly on GitHub.
+          </p>
+          <div>
+            <img src="static/images/slab-by-slab_Ray_Casting_algorithm.png">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+
+</section>
+
+
+
+
+<!-- <section class="section">
+  <div class="container">
+    <div>
+      <img src="static/images/slab-by-slab_Ray_Casting_algorithm.png" >
+    </div>
+  </div>
+</section> -->
+
+
+<section class="section">
+  <!-- <div class="container is-max-desktop"> -->
+  <div class="container is-max-widescreen">
+    <h2 class="title is-3">Visual Comparisons</h2>
+    <div class="content has-text-justified">
+
+    <h2 class="title is-4">Dex-NeRF dataset</h2>
+    <div class="content has-text-justified">
+    </div>
+    <div class="columns is-centered">
+      <video poster="" id="dex_nerf" autoplay controls muted loop playsinline height="100%">
+        <source src="static/videos/Dex-NeRF_RayGauss.mp4"
+                type="video/mp4">
+      </video>
+    </div>
+
+
+    <h2 class="title is-4">Mip-NeRF 360 dataset</h2>
+    <div class="content has-text-justified">
+    </div>
+    <div class="columns is-centered">
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+              <div id="bonsai" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/bonsai_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/bonsai_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="kitchen" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/kitchen_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/kitchen_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="bicycle" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/bicycle_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/bicycle_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="treehill" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/treehill_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/treehill_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+              <div id="counter" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/counter_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/counter_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="room" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/room_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/room_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+
+              <p>
+
+              </p>
+              <div id="flowers" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/flowers_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/flowers_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              
+              <div id="garden" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/garden_raygauss.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/garden_gaussian_splatting.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <h2 class="title is-4">Blender dataset</h2>
+    <div class="content has-text-justified">
+    </div>
+    <div class="columns is-centered">
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+              <div id="chair" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/chair_raygauss_101.png" class="resize-image">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/chair_gs_101.png" class="resize-image">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="drums" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/drums_raygauss_136.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/drums_gs_136.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="ficus" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/ficus_raygauss_89.png" class="resize-image">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/ficus_gs_89.png" class="resize-image">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="hotdog" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/hotdog_raygauss_22.png">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/hotdog_gs_22.png">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Effects. -->
+      <div class="column">
+        <div class="content">
+          <div class="columns is-centered">
+            <div class="column is-full-width">
+              <div id="lego" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/lego_raygauss_0.png" class="resize-image">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/lego_gs_0.png" class="resize-image">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              <div id="materials" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/materials_raygauss_40.png" class="resize-image">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/materials_gs_40.png" class="resize-image">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+
+              <p>
+
+              </p>
+              <div id="mic" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/mic_raygauss_20.png" class="resize-image">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/mic_gs_20.png" class="resize-image">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+              <p>
+
+              </p>
+              
+              <div id="ship" class="image-container">
+      
+                <div class="image-after">
+                  <img src="static/images/blender/ship_raygauss_131.png" class="resize-image">
+                  <div class="image-afterPosition afterLabel">
+                    RayGauss
+                  </div>
+                </div>
+              
+                <div class="image-before">
+                  <div class="image-before-inset">
+                  <img src="static/images/blender/ship_gs_131.png" class="resize-image">
+                    <div class="image-beforePosition beforeLabel">
+                      3D Gaussian Splatting
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="image-handle">
+                  <span class="handle-right-arrow"></span>
+                  <span class="handle-left-arrow"></span>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<script src="static/js/script.js"></script>
+
+<script>
+    new BeforeAfterVideo({
+        id: '#intr_video'
+    })  
+    new BeforeAfter({
+        id: '#bonsai'
+    });
+    new BeforeAfter({
+        id: '#counter'
+    });
+    new BeforeAfter({
+        id: '#kitchen'
+    });
+    new BeforeAfter({
+        id: '#room'
+    });
+    new BeforeAfter({
+        id: '#bicycle'
+    });
+    new BeforeAfter({
+        id: '#flowers'
+    });
+    new BeforeAfter({
+        id: '#garden'
+    });
+    new BeforeAfter({
+        id: '#treehill'
+    });
+    new BeforeAfter({
+        id: '#chair'
+    });
+    new BeforeAfter({
+        id: '#drums'
+    });
+    new BeforeAfter({
+        id: '#ficus'
+    });
+    new BeforeAfter({
+        id: '#hotdog'
+    });
+    new BeforeAfter({
+        id: '#lego'
+    });
+    new BeforeAfter({
+        id: '#materials'
+    });
+    new BeforeAfter({
+        id: '#mic'
+    });
+    new BeforeAfter({
+        id: '#ship'
+    })  
+
+</script>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@INPROCEEDINGS{blanc2025raygauss,
+      author={Blanc, Hugo and Deschaud, Jean-Emmanuel and Paljic, Alexis},
+      booktitle={2025 IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)}, 
+      title={RayGauss: Volumetric Gaussian-Based Ray Casting for Photorealistic Novel View Synthesis}, 
+      year={2025},
+      volume={},
+      number={},
+      pages={1808-1817},
+      keywords={Training;Hands;Casting;Computer vision;Rendering (computer graphics);Neural radiance field;Inference algorithms;Slabs;Kernel;Videos;volume ray casting;differentiable rendering;radiance fields;novel view synthesis},
+      doi={10.1109/WACV61041.2025.00183}
+    }</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <!-- <div class="content has-text-centered">
+      <a class="icon-link"
+         href="./static/videos/nerfies_paper.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div> -->
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            We thank the authors of <a href="https://nerfies.github.io/">Nerfies</a> that kindly open sourced the template of this website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const videoAfter = document.getElementById('videoAfter');
+  const videoBefore = document.getElementById('videoBefore');
+
+  // Variable de verrouillage pour empêcher les mises à jour cycliques
+  let isSyncing = false;
+
+  // Fonction pour synchroniser le temps de lecture des deux vidéos
+  function syncVideos(sourceVideo, targetVideo) {
+    if (!isSyncing) {
+      isSyncing = true;  // Activer le verrouillage
+      if (Math.abs(sourceVideo.currentTime - targetVideo.currentTime) > 0.1) {
+        targetVideo.currentTime = sourceVideo.currentTime;
+      }
+      isSyncing = false; // Désactiver le verrouillage
+    }
+  }
+  
+  // Synchroniser la lecture
+  videoAfter.addEventListener('play', () => videoBefore.play());
+  videoBefore.addEventListener('play', () => videoAfter.play());
+
+  // Synchroniser la mise en pause
+  videoAfter.addEventListener('pause', () => videoBefore.pause());
+  videoBefore.addEventListener('pause', () => videoAfter.pause());
+
+  // Synchroniser les changements de temps
+  videoAfter.addEventListener('timeupdate', () => syncVideos(videoAfter, videoBefore));
+  videoBefore.addEventListener('timeupdate', () => syncVideos(videoBefore, videoAfter));
+
+  // Synchroniser le redémarrage après la fin d'une boucle
+  videoAfter.addEventListener('ended', () => videoBefore.play());
+  videoBefore.addEventListener('ended', () => videoAfter.play());
+</script>
+
+</body>
+</html>
