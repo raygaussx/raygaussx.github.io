@@ -1,8 +1,8 @@
-# RayGauss
+# RayGaussX
 
-This is the repository that contains source code for the [Raygauss website](https://raygauss.github.io).
+This is the repository that contains source code for the [RaygaussX website](https://raygaussx.github.io).
 
-If you find RayGauss useful for your work please cite:
+If you find RayGaussX useful for your work please cite:
 ```
 @INPROCEEDINGS{blanc2025raygauss,
   author={Blanc, Hugo and Deschaud, Jean-Emmanuel and Paljic, Alexis},
