@@ -205,46 +205,6 @@ High-Quality Novel View Synthesis</h1>
   </div>
 </section>
 
-<!-- <section class="section">
-  <video poster="" id="dex_nerf" autoplay controls muted loop playsinline height="100%">
-    <source src="static/videos/Dex-NeRF_RayGauss.mp4"
-            type="video/mp4">
-  </video>
-</section> -->
-
-
-<!-- <section class="section">
-  <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
-        <div class="container">
-          <div class="video-border">
-            <div id="intr_video" class="video-wrapper">
-              <div class="video-after">
-                <video src="static/videos/ray_gauss_ship2.mp4" autoplay muted loop></video>
-                <div class="video-afterPosition afterLabel">
-                  RayGauss
-                </div>
-              </div>
-              
-              <div class="video-before">
-                <div class="video-before-inset">
-                  <video src="static/videos/gsplat_ship.mp4" autoplay muted loop></video>
-                  <div class="video-beforePosition beforeLabel">
-                    3D Gaussian Splatting
-                  </div>
-                </div>
-              </div>
-
-              <div class="video-handle">
-                <span class="handle-right-arrow"></span>
-                <span class="handle-left-arrow"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-    </div>
-  </div>
-</section> -->
 
 
 <section class="section">
@@ -255,20 +215,13 @@ High-Quality Novel View Synthesis</h1>
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Differentiable volumetric rendering-based methods made significant progress in novel view synthesis. 
-            On one hand, innovative methods have replaced the Neural Radiance Fields (NeRF) network with locally parameterized structures, enabling high-quality renderings in a reasonable time.
-            On the other hand, approaches have used differentiable splatting instead of NeRF’s ray casting to optimize radiance fields rapidly using Gaussian kernels, allowing for fine adaptation to the scene. 
-            However, differentiable ray casting of irregularly spaced kernels has been scarcely explored, while splatting, despite enabling fast rendering times, is susceptible to clearly visible artifacts. 
+          RayGauss has achieved state‑of‑the‑art rendering quality for novel‑view synthesis on synthetic and indoor scenes by representing radiance and density fields with irregularly distributed elliptical basis functions, rendered via volume ray casting using a Bounding Volume Hierarchy (BVH). However, its computational cost prevents real-time rendering on real-world scenes. 
           </p>
           <p>  
-            Our work closes this gap by providing a physically consistent formulation of the emitted radiance c and density σ, decomposed with Gaussian functions associated with Spherical Gaussians/Harmonics for all-frequency colorimetric representation. 
-            We also introduce a method enabling differentiable ray casting of irregularly distributed Gaussians using an algorithm that integrates radiance fields slab by slab and leverages a BVH structure. 
-            This allows our approach to finely adapt to the scene while avoiding splatting artifacts. 
-            As a result, we achieve superior rendering quality compared to the state-of-the-art while maintaining reasonable training times and achieving inference speeds of 25 FPS on the Blender dataset. 
-            Associated code will be released publicly on GitHub.
+            Our approach, RayGaussX, builds on RayGauss by introducing key contributions that accelerate both training and inference. Specifically, we incorporate volumetric rendering acceleration strategies such as empty-space skipping and adaptive sampling, enhance ray coherence, and introduce scale regularization to reduce false-positive intersections. Additionally, we propose a new densification criterion that improves density distribution in distant regions, leading to enhanced graphical quality on larger scenes. As a result, RayGaussX achieves 5× to 12× faster training and 50× to 80× higher rendering speeds (FPS) on real-world datasets while improving visual quality by up to +0.56 dB in PSNR.
           </p>
           <div>
-            <img src="static/images/slab-by-slab_Ray_Casting_algorithm.png">
+            <img src="static/images/main_figure_raygaussx.png">
           </div>
         </div>
       </div>
