@@ -213,3 +213,21 @@ body {
 .video-nav-btn.next{ right: 12px; }
 .video-nav-btn:hover{ transform: translateY(-50%) scale(1.04); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
 .video-nav-btn:focus-visible{ outline: 3px solid rgba(59,130,246,.5); outline-offset: 2px; }
+
+.main-figure{
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 1rem auto 0;
+  border-radius: 12px;                 /* petit arrondi sympa */
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+
+/* Sur écrans larges, on la fait dépasser un peu de la colonne */
+@media (min-width: 1024px){
+  .main-figure{
+    width: 110%;       /* ~10% plus large que la colonne */
+    max-width: none;
+    margin-left: -5%;  /* pour rester centrée visuellement */
+  }
+}
