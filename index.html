@@ -151,9 +151,47 @@
   </div>
 </section>
 
+<!-- ===== Results (Quantitative + Qualitative) ===== -->
+<section class="section" id="results">
+  <div class="container is-max-widescreen">
+
+    <h2 class="title is-3 has-text-centered">Results</h2>
+
+    <!-- Quantitative Results -->
+    <div class="content" id="quantitative-results">
+      <h3 class="title is-4">Quantitative Results</h3>
+      <p class="subtitle is-6">PSNR (per dataset)</p>
+
+      <div class="psnr-nav">
+        <button class="button is-light psnr-prev" aria-label="Previous dataset">‹</button>
+        <div class="psnr-title" id="psnr-title">Mip-NeRF360</div>
+        <button class="button is-light psnr-next" aria-label="Next dataset">›</button>
+      </div>
+
+      <div class="chart-wrap">
+        <canvas id="psnr_chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Qualitative Results -->
+    <div class="content" id="qualitative-results" style="margin-top:2rem;">
+      <h3 class="title is-4">Qualitative Results</h3>
+      <figure class="image">
+        <img
+          src="static/images/qualitative_raygaussx.jpg"
+          alt="Qualitative comparisons for RayGaussX and baselines"
+          style="display:block;margin:0 auto;max-width:1200px;width:100%;border-radius:12px;">
+      </figure>
+    </div>
+
+  </div>
+</section>
+<!-- ===== /Results ===== -->
+
+
 <section class="section">
   <div class="container is-max-widescreen">
-    <h2 class="title is-3">Interactive Visualization in the GUI</h2>
+    <h2 class="title is-3 has-text-centered">Interactive Visualization in the GUI</h2>
 
     <div class="columns is-centered">
       <video id="gui" autoplay controls muted loop playsinline height="100%">
@@ -193,6 +231,9 @@
     </div>
   </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 
 </body>
 </html>

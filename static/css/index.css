@@ -231,3 +231,22 @@ body {
     margin-left: -5%;  /* pour rester centrée visuellement */
   }
 }
+
+/* Cartes de graphes plus grandes */
+.chart-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.08);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  height: 440px;            /* <- hauteur confortable */
+}
+
+.psnr-nav{
+  display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:.75rem;
+}
+.psnr-title{
+  font-weight:700;text-align:center;min-width:180px;
+}
+.chart-wrap{height:460px;margin:1rem 0;}
+.chart-wrap canvas{width:100%!important;height:100%!important;}

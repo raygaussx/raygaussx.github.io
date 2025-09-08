@@ -170,5 +170,116 @@ if (v) {
     else { try { v.currentTime = 0; v.play(); } catch(e) {} }
   });
 }
-    
+
+(() => {
+  if (window.ChartDataLabels) Chart.register(ChartDataLabels);
+
+  // Données + échelles par dataset
+  const DATASETS = [
+    { key:'mip', title:'Mip-NeRF360',
+      vals:{ gs:27.91, zip:28.56, rg:28.23, rgx:28.43 }, y:[27.0, 29.0] },
+    { key:'tnt', title:'Tanks & Temples',
+      vals:{ gs:23.72, zip:10.85, rg:23.20, rgx:23.76 }, y:[23.0, 24.0] },
+    { key:'db',  title:'Deep Blending',
+      vals:{ gs:29.92, zip:30.76, rg:30.30, rgx:30.32 }, y:[29.5, 31.1] }
+  ];
+
+  const titleEl = document.getElementById('psnr-title');
+  const ctx  = document.getElementById('psnr_chart').getContext('2d');
+  const prev = document.querySelector('.psnr-prev');
+  const next = document.querySelector('.psnr-next');
+
+  let idx = 0;
+  let savedPalette = null; // mémorise les couleurs auto de Chart.js au 1er rendu
+
+  function makeData(meta, palette){
+    const v = meta.vals;
+    const ds = [
+      { label:'3D-GS',     data:[v.gs],  borderRadius:8 },
+      { label:'Zip-NeRF',  data:[v.zip], borderRadius:8 },
+      { label:'RayGauss',  data:[v.rg],  borderRadius:8 },
+      { label:'RayGaussX', data:[v.rgx], borderRadius:8, borderWidth:3, order:-1 }
+    ];
+    if (palette) {
+      ds.forEach((d, i) => {
+        d.backgroundColor = palette[i].bg;
+        d.borderColor = palette[i].border;
+      });
+    }
+    return { labels:[''], datasets: ds };
+  }
+
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: makeData(DATASETS[idx]),
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        title: { display: false, text: DATASETS[idx].title },
+        tooltip: { mode: 'index', intersect: false },
+        datalabels: window.ChartDataLabels ? {
+          anchor:'end', align:'end', color:'#111',
+          font:{ size:11, weight:'600' },
+          formatter: (v, ctx) => {
+            const rgx = DATASETS[idx].vals.rgx;
+            if (ctx.dataset.label === 'RayGaussX') return v.toFixed(2);
+            const d = v - rgx, sign = d >= 0 ? '+' : '';
+            return `${v.toFixed(2)} (${sign}${d.toFixed(2)})`;
+          }
+        } : undefined
+      },
+      datasets: { bar: { categoryPercentage:.6, barPercentage:.9 } },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ display:false } },
+        y: {
+          beginAtZero:false,
+          min: DATASETS[idx].y[0], max: DATASETS[idx].y[1],
+          title:{ display:true, text:'PSNR ↑ (dB)' },
+          grid:{ drawBorder:false }
+        }
+      }
+    }
+  });
+
+  // Capture la palette auto générée au 1er rendu
+  setTimeout(() => {
+    savedPalette = chart.data.datasets.map(ds => ({
+      bg: ds.backgroundColor,
+      border: ds.borderColor || ds.backgroundColor
+    }));
+  }, 0);
+
+  function updateChart(){
+    const meta = DATASETS[idx];
+    titleEl.textContent = meta.title;
+    chart.data = makeData(meta, savedPalette || chart.data.datasets.map(d=>({bg:d.backgroundColor, border:d.borderColor||d.backgroundColor})));
+    chart.options.plugins.title.text = meta.title;
+    chart.options.scales.y.min = meta.y[0];
+    chart.options.scales.y.max = meta.y[1];
+    chart.update();
+  }
+
+  // Flèches
+  prev?.addEventListener('click', () => { idx = (idx - 1 + DATASETS.length) % DATASETS.length; updateChart(); });
+  next?.addEventListener('click', () => { idx = (idx + 1) % DATASETS.length; updateChart(); });
+
+  // Clavier ← / →
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft')  prev.click();
+    if (e.key === 'ArrowRight') next.click();
+  });
+
+  // Swipe sur mobile (sur le canvas)
+  let startX=null;
+  ctx.canvas.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive:true });
+  ctx.canvas.addEventListener('touchend', e => {
+    if (startX===null) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) > 40) (dx < 0 ? next : prev).click();
+    startX=null;
+  });
+})();
+
 })
