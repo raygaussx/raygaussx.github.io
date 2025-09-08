@@ -46,7 +46,7 @@ body {
   left: auto;
   top: auto;
   transform: none;
-  object-fit: fit;
+  object-fit: cover;
 }
 
 .publication-header .hero-body {
@@ -167,3 +167,49 @@ body {
   position: relative;
   
 }
+
+/* Bouton plein écran flottant */
+.video-fs-btn{
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(17,24,39,.55);
+  color: #fff; font-size: 18px; line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.video-fs-btn:hover{ transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+.video-fs-btn:active{ transform: translateY(0); }
+.video-fs-btn:focus-visible{ outline: 3px solid rgba(59,130,246,.5); outline-offset: 2px; }
+
+
+/* Boutons précédent / suivant (centres verticalement) */
+.video-nav-btn{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(17,24,39,.55);
+  color: #fff; font-size: 22px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.video-nav-btn.prev{ left: 12px; }
+.video-nav-btn.next{ right: 12px; }
+.video-nav-btn:hover{ transform: translateY(-50%) scale(1.04); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+.video-nav-btn:focus-visible{ outline: 3px solid rgba(59,130,246,.5); outline-offset: 2px; }

@@ -75,4 +75,100 @@ $(document).ready(function() {
 
     bulmaSlider.attach();
 
+  // ===== Plein écran + Playlist (FIX) pour #heroVideo =====
+const v       = document.getElementById('heroVideo');
+const wrapper = document.getElementById('intr_video');
+const fsBtn   = document.querySelector('.video-fs-btn');
+const labelEl = document.querySelector('.video-label');
+const prevBtn = document.querySelector('.video-nav-btn.prev');
+const nextBtn = document.querySelector('.video-nav-btn.next');
+
+if (v) {
+  // --- Playlist à adapter ---
+  const playlist = [
+    { src: 'static/videos/Video_Globe.mp4',                         label: 'RayGaussX — Globe' },
+    { src: 'static/videos/Video_Beryl.mp4',                         label: 'RayGaussX — Béryl' },
+    { src: 'static/videos/Rendering_RayGauss_Vas_Diatretum_v3.mp4', label: 'RayGaussX — Vase' },
+  ];
+  let idx = 0;
+
+  // -------- Fullscreen helpers --------
+  function isFullscreen() {
+    return document.fullscreenElement === wrapper ||
+           document.fullscreenElement === v ||
+           document.webkitFullscreenElement === wrapper ||
+           document.webkitFullscreenElement === v;
+  }
+  async function enterFullscreen() {
+    if (wrapper && wrapper.requestFullscreen) return wrapper.requestFullscreen();
+    if (v && v.requestFullscreen) return v.requestFullscreen();
+    if (v && v.webkitEnterFullscreen) { v.webkitEnterFullscreen(); return 'iosNative'; } // iOS ancien
+  }
+  async function exitFullscreen() {
+    if (document.exitFullscreen) return document.exitFullscreen();
+    if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+  }
+  function setFSState(active){
+    if (!fsBtn) return;
+    fsBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    fsBtn.title = active ? 'Quitter le plein écran' : 'Plein écran';
+    fsBtn.textContent = active ? '⤡' : '⤢';
+  }
+
+  // -------- Changement de vidéo --------
+  function loadAndPlay(i){
+    if (!playlist.length) return;
+    idx = ((i % playlist.length) + playlist.length) % playlist.length; // wrap
+    const item = playlist[idx];
+    const wasMuted  = v.muted;
+
+    v.pause();
+    v.src = item.src;
+    v.load();
+    if (labelEl && item.label) labelEl.textContent = item.label;
+
+    v.addEventListener('loadedmetadata', function onLM(){
+      v.removeEventListener('loadedmetadata', onLM);
+      v.muted = wasMuted;
+      v.play().catch(()=>{});
+    });
+  }
+
+  // -------- Init : aligner sur la source actuelle --------
+  {
+    const cur = v.getAttribute('src') || (v.querySelector('source')?.getAttribute('src'));
+    const found = playlist.findIndex(p => p.src === cur);
+    if (found >= 0) {
+      idx = found;
+      if (labelEl) labelEl.textContent = playlist[idx].label || (labelEl.textContent || 'Vidéo');
+    } else if (cur) {
+      playlist.unshift({ src: cur, label: labelEl?.textContent || 'Vidéo' });
+      idx = 0;
+    }
+  }
+
+  // -------- Listeners UI --------
+  fsBtn?.addEventListener('click', () => { isFullscreen() ? exitFullscreen() : enterFullscreen(); });
+  v.addEventListener('dblclick',          () => { isFullscreen() ? exitFullscreen() : enterFullscreen(); });
+  document.addEventListener('fullscreenchange',       () => setFSState(isFullscreen()));
+  document.addEventListener('webkitfullscreenchange', () => setFSState(isFullscreen()));
+  setFSState(false);
+
+  prevBtn?.addEventListener('click', () => loadAndPlay(idx - 1));
+  nextBtn?.addEventListener('click', () => loadAndPlay(idx + 1));
+
+  // Flèches clavier
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft')  loadAndPlay(idx - 1);
+    if (e.key === 'ArrowRight') loadAndPlay(idx + 1);
+    if (e.key && e.key.toLowerCase() === 'f') { isFullscreen() ? exitFullscreen() : enterFullscreen(); }
+  });
+
+  // -------- Fin de vidéo : un seul handler --------
+  v.addEventListener('ended', () => {
+    if (playlist.length > 1) loadAndPlay(idx + 1);
+    else { try { v.currentTime = 0; v.play(); } catch(e) {} }
+  });
+}
+    
 })
