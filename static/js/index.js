@@ -177,7 +177,7 @@ if (v) {
   // Données + échelles par dataset
   const DATASETS = [
     { key:'mip', title:'Mip-NeRF360',
-      vals:{ gs:27.91, zip:28.56, rg:28.23, rgx:28.43 }, y:[27.0, 29.0] },
+      vals:{ gs:27.80, zip:28.56, rg:28.23, rgx:28.43 }, y:[27.0, 29.0] },
     { key:'tnt', title:'Tanks & Temples',
       vals:{ gs:23.72, zip:10.85, rg:23.20, rgx:23.76 }, y:[23.0, 24.0] },
     { key:'db',  title:'Deep Blending',
