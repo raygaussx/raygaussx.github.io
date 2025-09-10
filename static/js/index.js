@@ -279,10 +279,19 @@ if (v) {
       scales: {
         x: { grid:{ display:false }, ticks:{ display:false } },
         y: {
-          beginAtZero:true,
-          min: DATASETS[idx].yFPS[0], max: DATASETS[idx].yFPS[1],
-          title:{ display:true, text:'FPS ↑' },
-          grid:{ drawBorder:false }
+          type: 'logarithmic',
+          // bornes qui couvrent tes valeurs : 0.3, 0.5, 24.1, 41.1, 39.6, 161, 176, 197
+          min: 0.1,
+          max: 300,
+          title: { display: true, text: 'FPS ↑ (log scale)' },
+          grid: { drawBorder: false },
+          ticks: {
+            // n’affiche que les puissances de 10 pour garder l’axe lisible
+            callback: (v) => {
+              const pows = [0.1, 1, 10, 100, 1000];
+              return pows.includes(v) ? String(v) : '';
+            }
+          }
         }
       }
     }
