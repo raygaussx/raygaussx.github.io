@@ -174,26 +174,37 @@ if (v) {
 (() => {
   if (window.ChartDataLabels) Chart.register(ChartDataLabels);
 
-  // Données + échelles par dataset
+  // Données par dataset (mêmes méthodes que ton graphe PSNR)
+  // PSNR = en dB (déjà dans ton site); FPS = tableau de l'image fournie
   const DATASETS = [
     { key:'mip', title:'Mip-NeRF360',
-      vals:{ gs:27.80, zip:28.56, rg:28.23, rgx:28.43 }, y:[27.0, 29.0] },
+      psnr:{ gs:27.80, zip:28.56, rg:28.23, rgx:28.43 },
+      fps :{ gs:161.0, zip:0.3,  rg:0.5,  rgx:24.1  },
+      yPSNR:[27.0, 29.0], yFPS:[0, 200]
+    },
     { key:'tnt', title:'Tanks & Temples',
-      vals:{ gs:23.72, zip:10.85, rg:23.20, rgx:23.76 }, y:[23.0, 24.0] },
+      psnr:{ gs:23.72, zip:10.85, rg:23.20, rgx:23.76 },
+      fps :{ gs:197.0, zip:0.3,  rg:0.5,  rgx:41.1  },
+      yPSNR:[23.0, 24.0], yFPS:[0, 210]
+    },
     { key:'db',  title:'Deep Blending',
-      vals:{ gs:29.92, zip:30.76, rg:30.30, rgx:30.32 }, y:[29.5, 31.1] }
+      psnr:{ gs:29.92, zip:30.76, rg:30.30, rgx:30.32 },
+      fps :{ gs:176.0, zip:0.3,  rg:0.8,  rgx:39.6  },
+      yPSNR:[29.5, 31.1], yFPS:[0, 190]
+    }
   ];
 
   const titleEl = document.getElementById('psnr-title');
-  const ctx  = document.getElementById('psnr_chart').getContext('2d');
+  const psnrCtx = document.getElementById('psnr_chart').getContext('2d');
+  const fpsCtx  = document.getElementById('fps_chart').getContext('2d');
   const prev = document.querySelector('.psnr-prev');
   const next = document.querySelector('.psnr-next');
 
   let idx = 0;
-  let savedPalette = null; // mémorise les couleurs auto de Chart.js au 1er rendu
+  let savedPalette = null; // couleurs auto mémorisées après 1er rendu
 
-  function makeData(meta, palette){
-    const v = meta.vals;
+  function dataBars(values, palette){
+    const v = values;
     const ds = [
       { label:'3D-GS',     data:[v.gs],  borderRadius:8 },
       { label:'Zip-NeRF',  data:[v.zip], borderRadius:8 },
@@ -201,29 +212,26 @@ if (v) {
       { label:'RayGaussX', data:[v.rgx], borderRadius:8, borderWidth:3, order:-1 }
     ];
     if (palette) {
-      ds.forEach((d, i) => {
-        d.backgroundColor = palette[i].bg;
-        d.borderColor = palette[i].border;
-      });
+      ds.forEach((d,i)=>{ d.backgroundColor = palette[i].bg; d.borderColor = palette[i].border; });
     }
     return { labels:[''], datasets: ds };
   }
 
-  const chart = new Chart(ctx, {
+  // ---- PSNR chart
+  const psnrChart = new Chart(psnrCtx, {
     type: 'bar',
-    data: makeData(DATASETS[idx]),
+    data: dataBars(DATASETS[idx].psnr),
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { position: 'bottom' },
-        title: { display: false, text: DATASETS[idx].title },
-        tooltip: { mode: 'index', intersect: false },
+        legend: { position:'bottom' },
+        title: { display:false, text: DATASETS[idx].title },
+        tooltip: { mode:'index', intersect:false },
         datalabels: window.ChartDataLabels ? {
           anchor:'end', align:'end', color:'#111',
           font:{ size:11, weight:'600' },
           formatter: (v, ctx) => {
-            const rgx = DATASETS[idx].vals.rgx;
+            const rgx = DATASETS[idx].psnr.rgx;
             if (ctx.dataset.label === 'RayGaussX') return v.toFixed(2);
             const d = v - rgx, sign = d >= 0 ? '+' : '';
             return `${v.toFixed(2)} (${sign}${d.toFixed(2)})`;
@@ -235,7 +243,7 @@ if (v) {
         x: { grid:{ display:false }, ticks:{ display:false } },
         y: {
           beginAtZero:false,
-          min: DATASETS[idx].y[0], max: DATASETS[idx].y[1],
+          min: DATASETS[idx].yPSNR[0], max: DATASETS[idx].yPSNR[1],
           title:{ display:true, text:'PSNR ↑ (dB)' },
           grid:{ drawBorder:false }
         }
@@ -243,38 +251,74 @@ if (v) {
     }
   });
 
-  // Capture la palette auto générée au 1er rendu
+  // mémoriser la palette choisie par Chart.js au 1er rendu
   setTimeout(() => {
-    savedPalette = chart.data.datasets.map(ds => ({
+    savedPalette = psnrChart.data.datasets.map(ds => ({
       bg: ds.backgroundColor,
       border: ds.borderColor || ds.backgroundColor
     }));
   }, 0);
 
-  function updateChart(){
+  // ---- FPS chart (même palette)
+  const fpsChart = new Chart(fpsCtx, {
+    type: 'bar',
+    data: dataBars(DATASETS[idx].fps, savedPalette),
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom' },
+        title: { display:false },
+        tooltip: { mode:'index', intersect:false },
+        datalabels: window.ChartDataLabels ? {
+          anchor:'end', align:'end', color:'#111',
+          font:{ size:11, weight:'600' },
+          formatter: (v) => (v >= 10 ? v.toFixed(0) : v.toFixed(1))  // lisible
+        } : undefined
+      },
+      datasets: { bar: { categoryPercentage:.6, barPercentage:.9 } },
+      scales: {
+        x: { grid:{ display:false }, ticks:{ display:false } },
+        y: {
+          beginAtZero:true,
+          min: DATASETS[idx].yFPS[0], max: DATASETS[idx].yFPS[1],
+          title:{ display:true, text:'FPS ↑' },
+          grid:{ drawBorder:false }
+        }
+      }
+    }
+  });
+
+  function updateCharts(){
     const meta = DATASETS[idx];
     titleEl.textContent = meta.title;
-    chart.data = makeData(meta, savedPalette || chart.data.datasets.map(d=>({bg:d.backgroundColor, border:d.borderColor||d.backgroundColor})));
-    chart.options.plugins.title.text = meta.title;
-    chart.options.scales.y.min = meta.y[0];
-    chart.options.scales.y.max = meta.y[1];
-    chart.update();
+
+    // PSNR
+    psnrChart.data = dataBars(meta.psnr, savedPalette);
+    psnrChart.options.scales.y.min = meta.yPSNR[0];
+    psnrChart.options.scales.y.max = meta.yPSNR[1];
+    psnrChart.update();
+
+    // FPS
+    fpsChart.data = dataBars(meta.fps, savedPalette);
+    fpsChart.options.scales.y.min = meta.yFPS[0];
+    fpsChart.options.scales.y.max = meta.yFPS[1];
+    fpsChart.update();
   }
 
-  // Flèches
-  prev?.addEventListener('click', () => { idx = (idx - 1 + DATASETS.length) % DATASETS.length; updateChart(); });
-  next?.addEventListener('click', () => { idx = (idx + 1) % DATASETS.length; updateChart(); });
+  // Navigation commune
+  prev?.addEventListener('click', () => { idx = (idx - 1 + DATASETS.length) % DATASETS.length; updateCharts(); });
+  next?.addEventListener('click', () => { idx = (idx + 1) % DATASETS.length; updateCharts(); });
 
   // Clavier ← / →
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft')  prev.click();
-    if (e.key === 'ArrowRight') next.click();
+    if (e.key === 'ArrowLeft')  prev?.click();
+    if (e.key === 'ArrowRight') next?.click();
   });
 
-  // Swipe sur mobile (sur le canvas)
+  // Swipe mobile sur le 1er canvas = contrôle commun
   let startX=null;
-  ctx.canvas.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive:true });
-  ctx.canvas.addEventListener('touchend', e => {
+  psnrCtx.canvas.addEventListener('touchstart', e => startX = e.touches[0].clientX, { passive:true });
+  psnrCtx.canvas.addEventListener('touchend', e => {
     if (startX===null) return;
     const dx = e.changedTouches[0].clientX - startX;
     if (Math.abs(dx) > 40) (dx < 0 ? next : prev).click();
