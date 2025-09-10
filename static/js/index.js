@@ -173,6 +173,9 @@ if (v) {
 
 (() => {
   if (window.ChartDataLabels) Chart.register(ChartDataLabels);
+  // === Helpers pour l'axe log ===
+  function nextPow10(x){ return Math.pow(10, Math.ceil(Math.log10(x))); }   // FIX: utilisé pour plafonner l'axe log
+  function maxFPS(meta){ return Math.max(...Object.values(meta.fps)); }      // FIX: max dynamique
 
   // Données par dataset (mêmes méthodes que ton graphe PSNR)
   // PSNR = en dB (déjà dans ton site); FPS = tableau de l'image fournie
@@ -257,36 +260,45 @@ if (v) {
       bg: ds.backgroundColor,
       border: ds.borderColor || ds.backgroundColor
     }));
+
+    // ➜ Ré-applique la palette aux deux graphes
+    psnrChart.data = dataBars(DATASETS[idx].psnr, savedPalette);
+    psnrChart.update();
+
+    fpsChart.data = dataBars(DATASETS[idx].fps, savedPalette);   // FIX: applique palette au FPS
+    fpsChart.update();
   }, 0);
 
   // ---- FPS chart (même palette)
+  const max0 = nextPow10( maxFPS(DATASETS[idx]) );               // FIX: plafond log dynamique
+
   const fpsChart = new Chart(fpsCtx, {
-    type: 'bar',
-    data: dataBars(DATASETS[idx].fps, savedPalette),
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { position:'bottom' },
-        title: { display:false },
-        tooltip: { mode:'index', intersect:false },
+    type:'bar',
+    data: dataBars(DATASETS[idx].fps),                            // FIX: dataBars (pas makeBars)
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout: { padding: { top: 12 } },     // un peu d’air au-dessus
+      plugins:{
+        legend:{ position:'bottom' },
+        tooltip:{ mode:'index', intersect:false },
         datalabels: window.ChartDataLabels ? {
           anchor:'end', align:'end', color:'#111',
           font:{ size:11, weight:'600' },
-          formatter: (v) => (v >= 10 ? v.toFixed(0) : v.toFixed(1))  // lisible
+          clamp:true,   // garde le texte dans la zone
+          clip:true,    // évite les débordements visibles
+          formatter:(v)=> (v>=10 ? v.toFixed(0) : v.toFixed(1))
         } : undefined
       },
-      datasets: { bar: { categoryPercentage:.6, barPercentage:.9 } },
-      scales: {
-        x: { grid:{ display:false }, ticks:{ display:false } },
-        y: {
-          type: 'logarithmic',
-          // bornes qui couvrent tes valeurs : 0.3, 0.5, 24.1, 41.1, 39.6, 161, 176, 197
-          min: 0.1,
-          max: 300,
-          title: { display: true, text: 'FPS ↑ (log scale)' },
-          grid: { drawBorder: false },
-          ticks: {
-            // n’affiche que les puissances de 10 pour garder l’axe lisible
+      datasets:{ bar:{ categoryPercentage:.6, barPercentage:.9 } },
+      scales:{
+        x:{ grid:{display:false}, ticks:{display:false} },
+        y:{
+          type:'logarithmic',                                      // FIX: échelle log
+          suggestedMin: 0.1,                                       // FIX: bornes "souples"
+          suggestedMax: max0,
+          title:{ display:true, text:'FPS ↑ (log scale)' },
+          grid:{ drawBorder:false },
+          ticks:{
             callback: (v) => {
               const pows = [0.1, 1, 10, 100, 1000];
               return pows.includes(v) ? String(v) : '';
@@ -307,10 +319,11 @@ if (v) {
     psnrChart.options.scales.y.max = meta.yPSNR[1];
     psnrChart.update();
 
-    // FPS
+    // FPS (log) - FIX: bornes dynamiques en log
     fpsChart.data = dataBars(meta.fps, savedPalette);
-    fpsChart.options.scales.y.min = meta.yFPS[0];
-    fpsChart.options.scales.y.max = meta.yFPS[1];
+    const top = nextPow10( maxFPS(meta) );                        // FIX
+    fpsChart.options.scales.y.suggestedMin = 0.1;                 // FIX
+    fpsChart.options.scales.y.suggestedMax = top;                 // FIX
     fpsChart.update();
   }
 
@@ -334,5 +347,5 @@ if (v) {
     startX=null;
   });
 })();
-
-})
+  
+});  // FIX: bonne fermeture du $(document).ready
