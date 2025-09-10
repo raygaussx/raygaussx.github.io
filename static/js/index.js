@@ -182,7 +182,7 @@ if (v) {
   const DATASETS = [
     { key:'mip', title:'Mip-NeRF360',
       psnr:{ gs:27.80, zip:28.56, rg:28.23, rgx:28.43 },
-      fps :{ gs:161.0, zip:0.3,  rg:0.5,  rgx:24.1  },
+      fps :{ gs:161.0, zip:0.1,  rg:0.5,  rgx:24.1  },
       yPSNR:[27.0, 29.0], yFPS:[0, 200]
     },
     { key:'tnt', title:'Tanks & Temples',
@@ -192,7 +192,7 @@ if (v) {
     },
     { key:'db',  title:'Deep Blending',
       psnr:{ gs:29.92, zip:30.76, rg:30.30, rgx:30.32 },
-      fps :{ gs:176.0, zip:0.3,  rg:0.8,  rgx:39.6  },
+      fps :{ gs:176.0, zip:0.2,  rg:0.8,  rgx:39.6  },
       yPSNR:[29.5, 31.1], yFPS:[0, 190]
     }
   ];
